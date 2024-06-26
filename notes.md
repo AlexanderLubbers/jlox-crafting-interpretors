@@ -27,3 +27,18 @@
 * represents an idealized chip that supports a certain kind of architecture
 * VMs are slow. This is because the code has to be emualated
 * advantages: simplicity and portability
+## Transpilers
+* translate the language into another programming language and then the code is run
+## Tree-walk interpreters
+* slow
+* execute the code as soon as it is parsed
+## Single pass compilers
+* parsing, lexical analysis, and code generation all occur in the parser
+* restrict the design of the language
+* no intermediate data strucutures. This means that the interpretor or compiler must know enough information to run the code as soon as it sees it
+## Just in time compilation
+* dangerous
+* fast
+* compiles to machine code
+
+
