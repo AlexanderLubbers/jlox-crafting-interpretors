@@ -1,5 +1,4 @@
-package lox;
-
+package com.jlox;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Lox {
+    static boolean hadError = false;
     //the throws keyword can be used to declare exceptions that occur during the execution of code
     //IO exception occurs when there is an error recieving an input or while outputing something
     //String[] args is used to get input
@@ -42,6 +42,7 @@ public class Lox {
             //that means that readline returns null
             if (line == null) break;
             run(line);
+            hadError = false;
         }
     }
     private static void run(String source) {
@@ -52,7 +53,16 @@ public class Lox {
         // for (Token token : tokens) {
         //     System.out.println(token);
         // }
+        if(hadError) {
+            System.exit(65);
+        }
     }
-    
+    static void error(int line, String message) {
+        report(line, "", message);
+    }
+    private static void report(int line, String where, String message) {
+        System.err.println("[line " + line + "] Error" + where + ": " + message);
+        hadError = true;
+    }
     
 }

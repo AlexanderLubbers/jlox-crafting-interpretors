@@ -2,6 +2,7 @@
 ## Lexical Analysis / Lexing
 * first part of developing a programming language
 * takes a stream of characters and turns them into tokens
+* each group of characters is called a lexeme
 ## Parsing
 * the part where syntax gets to compose larger expressions and gets to have meaning
 * the parser takes the tokens created from the lexing process and builds a tree structure

@@ -1,0 +1,20 @@
+package com.jlox;
+enum TokenType {
+    // Single-character tokens.
+    LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
+    COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
+    // One or two character tokens.
+    //BANG is !
+    BANG, BANG_EQUAL,
+    EQUAL, EQUAL_EQUAL,
+    GREATER, GREATER_EQUAL,
+    LESS, LESS_EQUAL,
+    // Literals.
+    //identifier is the name of a variable
+    IDENTIFIER, STRING, NUMBER,
+    // Keywords.
+    AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
+    PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
+
+    EOF
+}
