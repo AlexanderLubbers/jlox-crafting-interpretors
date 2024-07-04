@@ -35,8 +35,48 @@ public class Scanner {
             case '+' -> addToken(PLUS);
             case ';' -> addToken(SEMICOLON);
             case '*' -> addToken(STAR);
+            case '!' -> addToken(match('=') ? BANG_EQUAL : BANG); //if the current character is not an =, then it is only ! not !=
+            case '=' -> addToken(match('=') ? EQUAL_EQUAL : EQUAL);
+            case '<' -> addToken(match('=') ? LESS_EQUAL : LESS);
+            case '>' -> addToken(match('=') ? GREATER_EQUAL : GREATER);
+            case '/' -> {
+                if(match('/')) {
+                    //commends go until the end of the line
+                    //use advance to consume another character
+                    while (peek() != '\n' && !isAtEnd()) advance();
+                } else {
+                    //if it is just a single slash then add a single slash token
+                    addToken(SLASH);
+                }
+            }
+            case ' ' -> {
+            }
+            case '\r' -> {
+            }
+            case '\t' -> {
+            }
+            //if the new line character is detected then move to the next line
+            //this will go back to the beginning of the loop
+            case '\n' -> line++;
+
             default -> Lox.error(line, "Unexpected character.");
         }
+        //carriage return. Moves the cursor to the beginning of the line
+        //ignore whitespace
+            }
+    //check to see if the next character matches the input supplied
+     private boolean match(char expected) {
+        if (isAtEnd()) return false;
+        if (source.charAt(current) != expected) return false;
+        current++;
+        return true;
+    }
+    private char peek() {
+        //return a null character if the end is reached
+        if (isAtEnd()) return '\0';
+        //return the next char which is what the current variable looks at
+        //it only looks at the next char meaning this is called a lookahead
+        return source.charAt(current);
     }
     private boolean isAtEnd() {
         //return whether the current field is greater than or equal to the total length of the file
