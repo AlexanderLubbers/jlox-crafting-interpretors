@@ -51,19 +51,40 @@ public class Scanner {
             }
             case ' ' -> {
             }
+             //carriage return. Moves the cursor to the beginning of the line
             case '\r' -> {
             }
+            //ignore whitespace
             case '\t' -> {
             }
             //if the new line character is detected then move to the next line
             //this will go back to the beginning of the loop
             case '\n' -> line++;
+            case '"' -> string();
 
             default -> Lox.error(line, "Unexpected character.");
         }
-        //carriage return. Moves the cursor to the beginning of the line
-        //ignore whitespace
-            }
+}
+    private void string() {
+        //while the next character does not equal " and the end of the file is not reached
+        while (peek() != '"' && !isAtEnd()) {
+            //if a new line character is reached then go to the next line
+            if (peek() == '\n') line++;
+            //consume the character
+            advance();
+        }
+        //if the end of the file is reached, then report an unterminated string
+        if (isAtEnd()) {
+            Lox.error(line, "Unterminated string.");
+            return;
+        }
+        // consume one more character (the closing ")
+        advance();
+        //determine the string literal. do not include the starting and ending "
+        String value = source.substring(start + 1, current - 1);
+        //add a string token and pass in the value
+        addToken(STRING, value);
+    }
     //check to see if the next character matches the input supplied
      private boolean match(char expected) {
         if (isAtEnd()) return false;
