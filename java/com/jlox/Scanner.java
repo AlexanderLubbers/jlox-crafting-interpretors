@@ -1,7 +1,9 @@
 package com.jlox;
 import static com.jlox.TokenType.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 public class Scanner {
     //the raw source code will be stored in this string
     private final String source;
@@ -10,6 +12,26 @@ public class Scanner {
     private int start = 0;
     private int current = 0;
     private int line = 1;
+    private static final Map<String, TokenType> keywords;
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("fun", FUN);
+        keywords.put("if", IF);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
+        keywords.put("return", RETURN);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
+ }
     Scanner(String source) {
         this.source = source;
     }
@@ -18,6 +40,7 @@ public class Scanner {
             start = current;
             scanToken();
         }
+        //add an EOF token
         tokens.add(new Token(EOF, "", null, line));
         return tokens;
 
@@ -62,9 +85,45 @@ public class Scanner {
             case '\n' -> line++;
             case '"' -> string();
 
-            default -> Lox.error(line, "Unexpected character.");
+            default -> {
+                if (isDigit(c)) {
+                    number();
+
+                } else if (isAlpha(c)) {
+                    identifier();
+                } else {
+                    Lox.error(line, "Unexpected character");
+                }
+                
+            }
         }
-}
+    }
+    private void identifier() {
+        //use aplpha numberic so that numbers can be in the variable name
+        while(isAlphaNumeric(peek())) advance();
+
+        String text = source.substring(start, current);
+        //check to see if the text matches any of the keywords
+        // if so change the token type to that keyword
+        TokenType type = keywords.get(text);
+        if (type == null) type = IDENTIFIER;
+        addToken(type);
+    }
+    private void number() {
+        //consume all numbers
+        //call advance until there are no more digits
+        while(isDigit(peek())) advance();
+        //check to see if the next character is a decimal point
+        if (peek() == '.' && isDigit(peekNext())) {
+            //consume the .
+            advance();
+            //consume everything avter the decimal point
+            while(isDigit(peek())) advance();
+        }
+        //start and current can be accessed here because their scope is the entire class
+        //Double.parseDouble() turns a string into a double
+        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
+    }
     private void string() {
         //while the next character does not equal " and the end of the file is not reached
         while (peek() != '"' && !isAtEnd()) {
@@ -98,6 +157,25 @@ public class Scanner {
         //return the next char which is what the current variable looks at
         //it only looks at the next char meaning this is called a lookahead
         return source.charAt(current);
+    }
+    private char peekNext() {
+        //if the next character does not exist then return null character
+        if (current + 1 >= source.length()) return '\0';
+        //current is technically the next character so to get the character after that add one
+        return source.charAt(current+1);
+    }
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z') ||
+                c == '_';
+    }
+    private boolean isAlphaNumeric(char c) {
+        //is the input either a number or a letter
+        return isAlpha(c) || isDigit(c);
+    }
+    // check to see whether the char is a number
+    private boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
     }
     private boolean isAtEnd() {
         //return whether the current field is greater than or equal to the total length of the file
