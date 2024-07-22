@@ -67,6 +67,20 @@ public class Scanner {
                     //commends go until the end of the line
                     //use advance to consume another character
                     while (peek() != '\n' && !isAtEnd()) advance();
+                } else if(match('*')) {
+                    while(peek() != '*' && peekNext() != '/') {
+                        if(peek() == '\n') {
+                            line++;
+                        }
+                        advance();
+                    }
+                    if(isAtEnd()) {
+                        Lox.error(line, "Unterminated Comment");
+                    } else {
+                        //advance to times to consume the asterisk and slash that terminated the comment
+                        advance();
+                        advance();
+                    }
                 } else {
                     //if it is just a single slash then add a single slash token
                     addToken(SLASH);

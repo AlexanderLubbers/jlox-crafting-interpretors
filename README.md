@@ -5,3 +5,6 @@ This is the jlox interpreter from the book Crafting Interpreters. The actual ide
 2. Then the user input is passed into the run function and the input first goes through the scanner class
 3. in the scanner class, the start character (where character is a letter in the user input) and the current character are kept track of and while the end of the input is not reached, the scanner class will call the scan token function which will use a switch statement to search for tokens
 4. if something like a comma is detected then a comma token will be added to the token list and then the start variable will be set equal to the current variable to "consume" the characters that make up the token
+
+# things I added to the interpretor
+* C-style block comments
