@@ -1,6 +1,4 @@
 package com.jlox;
-
-import java.util.List;
 abstract class Expr{
 
  abstract <R> R accept(Visitor<R> visitor);
@@ -30,7 +28,6 @@ abstract class Expr{
         Grouping(Expr expression) {
             this.expression = expression;
         }
- 
 
         @Override
         <R> R accept(Visitor<R> visitor) {
