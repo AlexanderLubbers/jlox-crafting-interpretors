@@ -3,17 +3,22 @@ package com.jlox;
 class AstPrinter implements Expr.Visitor<String> {
     public static void main(String[] args)  {
         Expr expression = new Expr.Binary(
-        new Expr.Unary(
-            new Token(TokenType.MINUS, "-", null, 1),
-            new Expr.Literal(123)),
-        new Token(TokenType.STAR, "*", null, 1),
-        new Expr.Grouping(
-            new Expr.Literal(45.67)));
+            new Expr.Unary(
+                new Token(TokenType.MINUS, "-", null, 1),
+                new Expr.Literal(123)),
+            new Token(TokenType.STAR, "*", null, 1),
+            new Expr.Grouping(
+                new Expr.Literal(45.67)));
         System.out.println(new AstPrinter().print(expression));
+        System.out.println("reverse polish notation: ");
+        System.out.println(new AstPrinter().printRPN(expression));
     }
     
     String print(Expr expr) {
         return expr.accept(this);
+    }
+    String printRPN(Expr expr) {
+        return expr.acceptRPN(this);
     }
     @Override
     public String visitBinaryExpr(Expr.Binary expr) {
@@ -46,5 +51,35 @@ class AstPrinter implements Expr.Visitor<String> {
         }
         builder.append(")");
         return builder.toString();
+    }
+    private String parenthesizeRPN(String name, Expr... exprs) {
+        StringBuilder builder = new StringBuilder();
+        for (Expr expr : exprs) {
+            builder.append(expr.acceptRPN(this));
+            builder.append(" ");
+        }
+        builder.append(name);
+        return builder.toString();
+    }
+
+    @Override
+    public String visitBinaryExprRPN(Expr.Binary expr) {
+        return parenthesizeRPN(expr.operator.lexeme, expr.left, expr.right);
+    }
+
+    @Override
+    public String visitGroupingExprRPN(Expr.Grouping expr) {
+        return parenthesizeRPN("group", expr.expression);
+    }
+
+    @Override
+    public String visitLiteralExprRPN(Expr.Literal expr) {
+        if (expr.value == null) return "nil";
+        return expr.value.toString();
+    }
+
+    @Override
+    public String visitUnaryExprRPN(Expr.Unary expr) {
+        return parenthesizeRPN(expr.operator.lexeme, expr.right);
     }
 }
