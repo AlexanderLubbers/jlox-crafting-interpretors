@@ -15,15 +15,16 @@ import static com.jlox.TokenType.NIL;
 import static com.jlox.TokenType.NUMBER;
 import static com.jlox.TokenType.PLUS;
 import static com.jlox.TokenType.RIGHT_PAREN;
+import static com.jlox.TokenType.SEMICOLON;
 import static com.jlox.TokenType.SLASH;
 import static com.jlox.TokenType.STAR;
 import static com.jlox.TokenType.STRING;
 import static com.jlox.TokenType.TRUE;
-
 import java.util.List;
-import javax.print.DocFlavor;
 
 class Parser {
+    //create a sentinel class which is a class used for marking specific conditions within a program
+    private static class ParseError extends RuntimeException {}
     //list of all tokens
     private final List<Token> tokens;
     private int current = 0;
@@ -62,6 +63,38 @@ class Parser {
         }
         //return false and do nothing to the current token
         return false;
+    }
+    private ParseError error(Token token, String message) {
+        Lox.error(token, message);
+        return new ParseError();
+    }
+    private Token consume(TokenType type, String message) {
+        if(check(type)) return advance();
+
+        throw error(peek(), message);
+    }
+    //an error is encountered so discard tokens until the next statement is found
+    private void synchronize() {
+        advance();
+        while(!isAtEnd()) {
+            //this is a new statement so the parser has been synchronized
+            if(previous().type == SEMICOLON) return;
+
+            //these keywords indicate that a new statement has started meaning the parser has synchronized
+            switch(peek().type) {
+                case CLASS:
+                case FUN:
+                case VAR:
+                case FOR:
+                case IF:
+                case WHILE:
+                case PRINT:
+                case RETURN:
+                    return;
+            }
+            advance();
+        }
+
     }
     private boolean check(TokenType type) {
         //return false if the end of the list of tokens was reached
@@ -147,6 +180,15 @@ class Parser {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression. ");
             return new Expr.Grouping(expr);
+        }
+
+        throw error(peek(), "Expect expression.");
+    }
+    Expr parse() {
+        try {
+            return expression();
+        } catch(ParseError error) {
+            return null;
         }
     }
 } 

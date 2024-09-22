@@ -49,11 +49,17 @@ public class Lox {
     private static void run(String source) {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
+        Parser parser = new Parser(tokens);
+        Expr expression = parser.parse();
+
+        if(hadError) return;
+
+        System.out.println(new AstPrinter().print(expression));
         // For now, just print the tokens.
         //for every token in the list
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+        // for (Token token : tokens) {
+        //     System.out.println(token);
+        // }
         if(hadError) {
             System.exit(65);
         }
@@ -64,6 +70,15 @@ public class Lox {
     private static void report(int line, String where, String message) {
         System.err.println("[line " + line + "] Error" + where + ": " + message);
         hadError = true;
+    }
+    //report the error at a supplied token. show the token's location and the token itself.
+    //tokens will be used to track locations in the code
+    static void error(Token token, String message) {
+        if(token.type == TokenType.EOF) {
+            report(token.line, " at end", message);
+        } else {
+            report(token.line, " at '" + token.lexeme + "'", message);
+        }
     }
     
 }
