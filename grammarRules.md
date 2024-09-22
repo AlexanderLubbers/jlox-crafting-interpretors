@@ -13,10 +13,16 @@ Unary        ! -           Right
 ```
 ## Expression
 ```
-expression → equality ;
+expression → CommaExpr ;
 ```
 * states that an expression consists of an equality.
 * the phrase equality can be replaced with another item that is higher up on the heirarchy.
+## Comma Expression
+```
+CommaExpr → equality( (,) equality)* ;
+```
+* A comma expression consists of one or more equalities connected through commas.
+* can be replaced by an item that is higher up on the heirarchy.
 ## Equality
 ```
 equality → comparison ( ( "!=" | "==" ) comparison )* ;
