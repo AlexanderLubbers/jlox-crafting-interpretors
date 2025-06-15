@@ -85,5 +85,3 @@ abstract class Expr{
         final Expr right;
     }
 }
-//create a visitor class for reverse polish notation
-//reverse the order in the parenthesize functions

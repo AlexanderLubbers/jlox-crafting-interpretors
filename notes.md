@@ -41,5 +41,17 @@
 * dangerous
 * fast
 * compiles to machine code
+# Miscellaneous
+## comma expressions
+* evaluates expressions from left to right
+* then returns the right most expression
+example:
+```
+a++, array.pop(), add(1, 2)
+```
+returns:
+```
+3
+```
 
 
