@@ -2,7 +2,7 @@ package com.jlox;
 public enum TokenType {
     // Single-character tokens.
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
-    COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR, Q,
+    COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR, Q, COLON,
     // One or two character tokens.
     //BANG is !
     BANG, BANG_EQUAL,

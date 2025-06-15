@@ -2,6 +2,7 @@ package com.jlox;
 
 import static com.jlox.TokenType.BANG;
 import static com.jlox.TokenType.BANG_EQUAL;
+import static com.jlox.TokenType.COLON;
 import static com.jlox.TokenType.COMMA;
 import static com.jlox.TokenType.EOF;
 import static com.jlox.TokenType.EQUAL_EQUAL;
@@ -126,8 +127,23 @@ class Parser {
         Expr expr = term();
         if(match(Q)) {
             Token operator = previous();
-            Expr right = term();
+            Expr right = colonTernary();
             
+            expr = new Expr.Binary(expr, operator, right);
+        }
+        return expr;
+    }
+//TODO
+//make the error statement be a little less useless
+    private Expr colonTernary() {
+        Expr expr = term();
+        if(match(COLON)) {
+            Token operator = previous();
+            Expr right = term();
+
+            expr = new Expr.Binary(expr, operator, right);
+        } else {
+            throw error(peek(), "you have an invalid ternary expression somewhere");
         }
         return expr;
     }
