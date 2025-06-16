@@ -10,12 +10,40 @@ abstract class Expr{
             R visitGroupingExpr(Grouping expr);
             R visitLiteralExpr(Literal expr);
             R visitUnaryExpr(Unary expr);
+            R visitTernaryExpr(Ternary expr);
             //add visitor classes to turn the expresions into reverse polish notation format
             R visitBinaryExprRPN(Binary expr);
             R visitGroupingExprRPN(Grouping expr);
             R visitLiteralExprRPN(Literal expr);
             R visitUnaryExprRPN(Unary expr);
+            R visitTernaryExprRPN(Ternary expr);
         }
+    // No Reverse Polish Notation support for Ternary expressions yet :(
+    static class Ternary extends Expr {
+        public Ternary(Token operator, Token otherOperator, Expr conditionOne, Expr branch, Expr otherBranch) {
+            this.conditionOne = conditionOne;
+            this.branch = branch;
+            this.otherBranch = otherBranch;
+            this.operator = operator;
+            this.otherOperator = otherOperator;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitTernaryExpr(this);
+        }
+
+        @Override
+        <R> R acceptRPN(Visitor<R> visitor) {
+            return visitor.visitTernaryExprRPN(this);
+        }
+
+        final Expr conditionOne;
+        final Expr branch;
+        final Expr otherBranch;
+        final Token operator;
+        final Token otherOperator;
+    }
     static class Binary extends Expr {
         Binary(Expr left, Token operator, Expr right) {
             this.left = left;

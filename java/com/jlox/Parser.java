@@ -90,6 +90,7 @@ class Parser {
         //the rule for an expression expands to equality so the rule of that should be looked at
         return commaExpr();
     }
+    //make sure this actually works
     private Expr commaExpr() {
         Expr expr = equality();
         while(match(COMMA)) {
@@ -127,23 +128,14 @@ class Parser {
         Expr expr = term();
         if(match(Q)) {
             Token operator = previous();
-            Expr right = colonTernary();
+            Expr middle = ternary();
+            if(!match(COLON)) {
+                throw error(peek(), "invalid ternary statement. This should be a ':' instead");
+            }
+            Token otherOperator = previous();
+            Expr right = ternary();
+            expr = new Expr.Ternary(operator, otherOperator, expr, middle, right);
             
-            expr = new Expr.Binary(expr, operator, right);
-        }
-        return expr;
-    }
-//TODO
-//make the error statement be a little less useless
-    private Expr colonTernary() {
-        Expr expr = term();
-        if(match(COLON)) {
-            Token operator = previous();
-            Expr right = term();
-
-            expr = new Expr.Binary(expr, operator, right);
-        } else {
-            throw error(peek(), "you have an invalid ternary expression somewhere");
         }
         return expr;
     }

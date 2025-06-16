@@ -20,6 +20,12 @@ class AstPrinter implements Expr.Visitor<String> {
     String printRPN(Expr expr) {
         return expr.acceptRPN(this);
     }
+
+    @Override
+    public String visitTernaryExpr(Expr.Ternary expr) {
+        return parenthesize(expr.operator.lexeme+expr.otherOperator.lexeme, expr.conditionOne, expr.branch, expr.otherBranch);
+    }
+
     @Override
     public String visitBinaryExpr(Expr.Binary expr) {
         return parenthesize(expr.operator.lexeme, expr.left, expr.right);
@@ -81,5 +87,9 @@ class AstPrinter implements Expr.Visitor<String> {
     @Override
     public String visitUnaryExprRPN(Expr.Unary expr) {
         return parenthesizeRPN(expr.operator.lexeme, expr.right);
+    }
+    @Override
+    public String visitTernaryExprRPN(Expr.Ternary expr) {
+        return parenthesizeRPN(expr.operator.lexeme+expr.otherOperator.lexeme, expr.conditionOne, expr.branch, expr.otherBranch);
     }
 }
