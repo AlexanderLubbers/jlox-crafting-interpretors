@@ -115,15 +115,16 @@ class Parser {
         return expr;
     }
     private Expr comparison() {
-        Expr expr = term();
+        Expr expr = ternary();
         while(match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
             //since match consumes a token, the operater is the previous token
             Token operator = previous();
-            Expr right = term();
+            Expr right = ternary();
             expr = new Expr.Binary(expr, operator, right);
         }
         return expr;
     }
+    //does not work in the sligtest
     private Expr ternary() {
         Expr expr = term();
         if(match(Q)) {
