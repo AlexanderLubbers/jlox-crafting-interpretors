@@ -18,10 +18,10 @@ abstract class Expr{
             R visitUnaryExprRPN(Unary expr);
             R visitTernaryExprRPN(Ternary expr);
         }
-    // No Reverse Polish Notation support for Ternary expressions yet :(
+
     static class Ternary extends Expr {
-        public Ternary(Token operator, Token otherOperator, Expr conditionOne, Expr branch, Expr otherBranch) {
-            this.conditionOne = conditionOne;
+        public Ternary(Token operator, Token otherOperator, Expr condition, Expr branch, Expr otherBranch) {
+            this.condition = condition;
             this.branch = branch;
             this.otherBranch = otherBranch;
             this.operator = operator;
@@ -38,7 +38,7 @@ abstract class Expr{
             return visitor.visitTernaryExprRPN(this);
         }
 
-        final Expr conditionOne;
+        final Expr condition;
         final Expr branch;
         final Expr otherBranch;
         final Token operator;

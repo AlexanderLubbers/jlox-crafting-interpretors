@@ -124,7 +124,7 @@ class Parser {
         }
         return expr;
     }
-    //does not work in the sligtest
+    
     private Expr ternary() {
         Expr expr = term();
         if(match(Q)) {

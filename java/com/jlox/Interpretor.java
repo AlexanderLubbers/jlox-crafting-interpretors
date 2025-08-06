@@ -9,20 +9,12 @@ class Interpretor implements Expr.Visitor<Object> {
         return expr.value;
     }
 
-    @Override
-    public Object visitLiteralExprRPN(Expr.Literal expr) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
     @Override
     public Object visitGroupingExpr(Expr.Grouping expr) {
         return evaluate(expr.expression);
     }
 
-    @Override 
-    public Object visitGroupingExprRPN(Expr.Grouping expr) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
     //puts the expression inside of the grouping expression back into visitor implementation so that way it can be evaluated
     private Object evaluate(Expr expression) {
         return expression.accept(this);
@@ -35,27 +27,34 @@ class Interpretor implements Expr.Visitor<Object> {
 
         switch(expr.operator.type) {
             case MINUS:
+                checkNumberOperands(expr.operator, left, right);
                 return (double)left + -(double)right;
             case STAR:
+                checkNumberOperands(expr.operator, left, right);
                 return (double)right * (double)left;
             case SLASH:
+                checkNumberOperands(expr.operator, left, right);
                 return (double)left / (double)right;
             case GREATER_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
                 if((double)left >= (double)right) {
                     return true;
                 }
                 return false;
             case LESS_EQUAL:
+                checkNumberOperands(expr.operator, left, right);
                 if((double)left <= (double)right) {
                     return true;
                 }
                 return false;
             case GREATER:
+                checkNumberOperands(expr.operator, left, right);
                 if((double)left > (double)right) {
                     return true;
                 }
                 return false;
             case LESS:
+                checkNumberOperands(expr.operator, left, right);
                 if((double)left < (double)right) {
                     return true;
                 }
@@ -67,7 +66,7 @@ class Interpretor implements Expr.Visitor<Object> {
                 if(left instanceof Double && right instanceof Double) {
                     return (double)left + (double)right;
                 }
-                break;
+                throw new RuntimeError(expr.operator, "Operands must be either two strings or two numbers");
             case EQUAL_EQUAL:
                 return isEqual(left, right);
             case BANG_EQUAL:
@@ -83,6 +82,7 @@ class Interpretor implements Expr.Visitor<Object> {
         //refactor if more cases are not added
         switch(expr.operator.type) {
             case MINUS:
+                checkNumberOperand(expr.operator, right);
                 return -(double)right;
             case BANG:
                 return !isTruth(right);
@@ -91,8 +91,60 @@ class Interpretor implements Expr.Visitor<Object> {
         return null;
     }
 
+
+    private boolean isTruth(Object object) {
+        if(object == null) return false;
+        try {
+            return (boolean)object;
+        } catch (Exception e) {
+            //print out the error
+            System.out.println(e.getCause().getMessage());
+        }
+        //if(object instanceof Boolean) return (boolean) object;
+        return true;
+    }
+
+    private boolean isEqual(Object left, Object right) {
+        if(left == null && right == null) {
+            return true;
+        }
+        if(left == null) {
+            return false;
+        }
+        return left.equals(right);
+    }
+
+    private void checkNumberOperand(Token operator, Object operand) {
+        if(operand instanceof Double) return;
+        throw new RuntimeError(operator, "Operand must be a number");
+    }
+    private void checkNumberOperands(Token operator, Object left, Object right) {
+        if(left instanceof Double && right instanceof Double) {
+            return;
+        }
+        throw new RuntimeError(operator, "Operands must be numbers");
+    }
+
     @Override
     public Object visitTernaryExpr(Expr.Ternary expr) {
+        Object condition = evaluate(expr.condition);
+        Object branch = evaluate(expr.branch);
+        Object otherBranch = evaluate(expr.otherBranch);
+
+        if(condition == null) {
+            return otherBranch;   
+        }
+        if(condition instanceof Boolean bool) {
+            if(bool == false) {
+                return otherBranch;
+            }
+        }
+        return branch;
+    }
+    
+    // all of the RPN logic still needs to be implemented
+    @Override
+    public Object visitLiteralExprRPN(Expr.Literal expr) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -111,25 +163,8 @@ class Interpretor implements Expr.Visitor<Object> {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    private boolean isTruth(Object object) {
-        if(object == null) return false;
-        try {
-            return (boolean)object;
-        } catch (Exception e) {
-            //print out the error
-            System.out.println(e.getCause().getMessage());
-        }
-        //if(object instanceof Boolean) return (boolean) object;
-        return true;
-    }
-
-    private Object isEqual(Object left, Object right) {
-        if(left == null && right == null) {
-            return true;
-        }
-        if(left == null) {
-            return false;
-        }
-        return left.equals(right);
+    @Override 
+    public Object visitGroupingExprRPN(Expr.Grouping expr) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

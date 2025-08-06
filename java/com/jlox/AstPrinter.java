@@ -23,7 +23,7 @@ class AstPrinter implements Expr.Visitor<String> {
 
     @Override
     public String visitTernaryExpr(Expr.Ternary expr) {
-        return parenthesize(expr.operator.lexeme+expr.otherOperator.lexeme, expr.conditionOne, expr.branch, expr.otherBranch);
+        return parenthesize(expr.operator.lexeme+expr.otherOperator.lexeme, expr.condition, expr.branch, expr.otherBranch);
     }
 
     @Override
@@ -90,6 +90,6 @@ class AstPrinter implements Expr.Visitor<String> {
     }
     @Override
     public String visitTernaryExprRPN(Expr.Ternary expr) {
-        return parenthesizeRPN(expr.operator.lexeme+expr.otherOperator.lexeme, expr.conditionOne, expr.branch, expr.otherBranch);
+        return parenthesizeRPN(expr.operator.lexeme+expr.otherOperator.lexeme, expr.condition, expr.branch, expr.otherBranch);
     }
 }
