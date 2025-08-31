@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+//overall purpose of this class is to read a file containing text and convert that text into tokens for the parser to parse
 public class Scanner {
     //the raw source code will be stored in this string
     private final String source;
@@ -14,6 +15,7 @@ public class Scanner {
     private int line = 1;
     private static final Map<String, TokenType> keywords;
     static {
+        //create a hashmap corresponds the word in the langauge to the token type
         keywords = new HashMap<>();
         keywords.put("and", AND);
         keywords.put("class", CLASS);
@@ -40,7 +42,7 @@ public class Scanner {
             start = current;
             scanToken();
         }
-        //add an EOF token
+        //add an EOF token because the end of the source was reached
         tokens.add(new Token(EOF, "", null, line));
         return tokens;
 
@@ -62,6 +64,8 @@ public class Scanner {
             case '=' -> addToken(match('=') ? EQUAL_EQUAL : EQUAL);
             case '<' -> addToken(match('=') ? LESS_EQUAL : LESS);
             case '>' -> addToken(match('=') ? GREATER_EQUAL : GREATER);
+            case '?' -> addToken(Q);
+            case ':' -> addToken(COLON);
             case '/' -> {
                 if(match('/')) {
                     //commends go until the end of the line
@@ -77,7 +81,7 @@ public class Scanner {
                     if(isAtEnd()) {
                         Lox.error(line, "Unterminated Comment");
                     } else {
-                        //advance to times to consume the asterisk and slash that terminated the comment
+                        //advance two times to consume the asterisk and slash that terminated the comment
                         advance();
                         advance();
                     }
@@ -104,6 +108,7 @@ public class Scanner {
                     number();
 
                 } else if (isAlpha(c)) {
+                    //that means that variable names cannot start with numbers??
                     identifier();
                 } else {
                     Lox.error(line, "Unexpected character");
@@ -113,7 +118,7 @@ public class Scanner {
         }
     }
     private void identifier() {
-        //use aplpha numberic so that numbers can be in the variable name
+        //use alpha numberic so that numbers can be in the variable name
         while(isAlphaNumeric(peek())) advance();
 
         String text = source.substring(start, current);

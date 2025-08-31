@@ -7,8 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+
 public class Lox {
+    private static final Interpretor interpreter = new Interpretor();
     static boolean hadError = false;
+    static boolean hadRuntimeError = false;
     //the throws keyword can be used to declare exceptions that occur during the execution of code
     //IO exception occurs when there is an error recieving an input or while outputing something
     //String[] args is used to get input
@@ -31,6 +34,9 @@ public class Lox {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         //turns the bytes into characters
         run(new String(bytes, Charset.defaultCharset()));
+
+        if(hadError) System.exit(65);
+        if(hadRuntimeError) System.exit(70);
     }
     private static void runPrompt() throws IOException{
         //use the standard input stream as the source of input
@@ -54,12 +60,7 @@ public class Lox {
 
         if(hadError) return;
 
-        System.out.println(new AstPrinter().print(expression));
-        // For now, just print the tokens.
-        //for every token in the list
-        // for (Token token : tokens) {
-        //     System.out.println(token);
-        // }
+        interpreter.interpret(expression);
         if(hadError) {
             System.exit(65);
         }
@@ -79,6 +80,11 @@ public class Lox {
         } else {
             report(token.line, " at '" + token.lexeme + "'", message);
         }
+    }
+    static void runtimeError(RuntimeError error) {
+         System.err.println(error.getMessage() +
+            "\n[line " + error.token.line + "]");
+        hadRuntimeError = true;
     }
     
 }

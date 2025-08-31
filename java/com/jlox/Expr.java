@@ -10,12 +10,40 @@ abstract class Expr{
             R visitGroupingExpr(Grouping expr);
             R visitLiteralExpr(Literal expr);
             R visitUnaryExpr(Unary expr);
+            R visitTernaryExpr(Ternary expr);
             //add visitor classes to turn the expresions into reverse polish notation format
             R visitBinaryExprRPN(Binary expr);
             R visitGroupingExprRPN(Grouping expr);
             R visitLiteralExprRPN(Literal expr);
             R visitUnaryExprRPN(Unary expr);
+            R visitTernaryExprRPN(Ternary expr);
         }
+
+    static class Ternary extends Expr {
+        public Ternary(Token operator, Token otherOperator, Expr condition, Expr branch, Expr otherBranch) {
+            this.condition = condition;
+            this.branch = branch;
+            this.otherBranch = otherBranch;
+            this.operator = operator;
+            this.otherOperator = otherOperator;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitTernaryExpr(this);
+        }
+
+        @Override
+        <R> R acceptRPN(Visitor<R> visitor) {
+            return visitor.visitTernaryExprRPN(this);
+        }
+
+        final Expr condition;
+        final Expr branch;
+        final Expr otherBranch;
+        final Token operator;
+        final Token otherOperator;
+    }
     static class Binary extends Expr {
         Binary(Expr left, Token operator, Expr right) {
             this.left = left;
@@ -85,5 +113,3 @@ abstract class Expr{
         final Expr right;
     }
 }
-//create a visitor class for reverse polish notation
-//reverse the order in the parenthesize functions

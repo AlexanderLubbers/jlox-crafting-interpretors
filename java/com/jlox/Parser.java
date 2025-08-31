@@ -2,6 +2,8 @@ package com.jlox;
 
 import static com.jlox.TokenType.BANG;
 import static com.jlox.TokenType.BANG_EQUAL;
+import static com.jlox.TokenType.COLON;
+import static com.jlox.TokenType.COMMA;
 import static com.jlox.TokenType.EOF;
 import static com.jlox.TokenType.EQUAL_EQUAL;
 import static com.jlox.TokenType.FALSE;
@@ -14,12 +16,15 @@ import static com.jlox.TokenType.MINUS;
 import static com.jlox.TokenType.NIL;
 import static com.jlox.TokenType.NUMBER;
 import static com.jlox.TokenType.PLUS;
+import static com.jlox.TokenType.PRINT;
+import static com.jlox.TokenType.Q;
 import static com.jlox.TokenType.RIGHT_PAREN;
 import static com.jlox.TokenType.SEMICOLON;
 import static com.jlox.TokenType.SLASH;
 import static com.jlox.TokenType.STAR;
 import static com.jlox.TokenType.STRING;
 import static com.jlox.TokenType.TRUE;
+import java.util.ArrayList;
 import java.util.List;
 
 class Parser {
@@ -32,27 +37,8 @@ class Parser {
         //set the tokens variable equal to the input of the constructor
         this.tokens = tokens;
     }
-    private Expr expression() {
-        //the rule for an expression expands to equality so the rule of that should be looked at
-        return equality();
-    }
-    // equality -> comparison ( ( "!=" | "==" ) comparison )* ;
-    //this method matches an equality operator or anything of higher precedence
-    private Expr equality() {
-        Expr expr = comparison();
-        //while loop to make sure the entire sequence of comparison operators is handled
-        while(match(BANG_EQUAL, EQUAL_EQUAL)) {
-            //the previous token was either != or ==
-            Token operator = previous();
-            Expr right = comparison();
-            //will repeatedly append the new operator and right value to the expr
-            expr = new Expr.Binary(expr, operator, right);
-        }
-        return expr;
-    }
     //the ... indicates that there can be a variable number of arguments
     private boolean match(TokenType... types) {
-        //checks to see if the token matches any of the given types
         for(TokenType type: types) {
             //check to see whether type matches the current token
             if(check(type)) {
@@ -102,15 +88,57 @@ class Parser {
         //check to see if the type matches the argument
         return peek().type == type;
     }
+    private Expr expression() {
+        //the rule for an expression expands to equality so the rule of that should be looked at
+        return commaExpr();
+    }
+    //make sure this actually works
+    private Expr commaExpr() {
+        Expr expr = equality();
+        while(match(COMMA)) {
+            Token operator = previous();
+            Expr right = equality();
+            expr = new Expr.Binary(expr, operator, right);
+        }
+        return expr;
+    }
+    // equality -> comparison ( ( "!=" | "==" ) comparison )* ;
+    //this method matches an equality operator or anything of higher precedence
+    private Expr equality() {
+        Expr expr = comparison(); 
+        //while loop to make sure the entire sequence of comparison operators is handled
+        while(match(BANG_EQUAL, EQUAL_EQUAL)) {
+            //the previous token was either != or ==
+            Token operator = previous();
+            Expr right = comparison();
+            //will repeatedly append the new operator and right value to the expr
+            expr = new Expr.Binary(expr, operator, right);
+        }
+        return expr;
+    }
     private Expr comparison() {
-        Expr expr = term();
+        Expr expr = ternary();
         while(match(GREATER, GREATER_EQUAL, LESS, LESS_EQUAL)) {
             //since match consumes a token, the operater is the previous token
             Token operator = previous();
-            Expr right = term();
-
+            Expr right = ternary();
             expr = new Expr.Binary(expr, operator, right);
-            return expr;
+        }
+        return expr;
+    }
+    
+    private Expr ternary() {
+        Expr expr = term();
+        if(match(Q)) {
+            Token operator = previous();
+            Expr middle = ternary();
+            if(!match(COLON)) {
+                throw error(peek(), "invalid ternary statement. This should be a ':' instead");
+            }
+            Token otherOperator = previous();
+            Expr right = ternary();
+            expr = new Expr.Ternary(operator, otherOperator, expr, middle, right);
+            
         }
         return expr;
     }
@@ -143,7 +171,6 @@ class Parser {
             Expr right = factor();
 
             expr = new Expr.Binary(expr, operator, right);
-            return expr;
         }
         return expr;
     }
@@ -155,7 +182,6 @@ class Parser {
             Expr right = unary();
 
             expr = new Expr.Binary(expr, operator, right);
-            return expr;
         }
         return expr;
     }
@@ -184,11 +210,36 @@ class Parser {
 
         throw error(peek(), "Expect expression.");
     }
-    Expr parse() {
-        try {
-            return expression();
-        } catch(ParseError error) {
-            return null;
+    // Expr parse() {
+    //     try {
+    //         return expression();
+    //     } catch(ParseError error) {
+    //         return null;
+    //     }
+    // }
+
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
+        while(!isAtEnd()) {
+            statements.add(statement());
         }
+        return statements;
+    }
+    private Stmt statement() {
+        if(match(PRINT)) return printStatement();
+
+        return expressionStatement();
+    }
+
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(SEMICOLON, "expect ':' after value. ");
+        return new Stmt.Print(value);
+    }
+
+    private Stmt expressionStatement() {
+        Expr value = expression();
+        consume(SEMICOLON, "expect ';' after value.");
+        return new Stmt.Expression(value);
     }
 } 
