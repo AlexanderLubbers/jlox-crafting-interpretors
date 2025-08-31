@@ -2,7 +2,7 @@ package com.jlox;
 
 import static com.jlox.TokenType.*;
 
-class Interpretor implements Expr.Visitor<Object> {
+class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
@@ -34,6 +34,9 @@ class Interpretor implements Expr.Visitor<Object> {
                 return (double)right * (double)left;
             case SLASH:
                 checkNumberOperands(expr.operator, left, right);
+                if((double)right == 0.0) {
+                    throw new RuntimeError(expr.operator, "Cannot divide by zero");
+                }
                 return (double)left / (double)right;
             case GREATER_EQUAL:
                 checkNumberOperands(expr.operator, left, right);
@@ -65,6 +68,12 @@ class Interpretor implements Expr.Visitor<Object> {
                 }
                 if(left instanceof Double && right instanceof Double) {
                     return (double)left + (double)right;
+                }
+                if(left instanceof Double && right instanceof String) {
+                    return stringify((double)left) + (String)right;
+                }
+                if(left instanceof String && right instanceof Double) {
+                    return (String)left + stringify((double)right);
                 }
                 throw new RuntimeError(expr.operator, "Operands must be either two strings or two numbers");
             case EQUAL_EQUAL:
@@ -141,7 +150,27 @@ class Interpretor implements Expr.Visitor<Object> {
         }
         return branch;
     }
-    
+    public void interpret(Expr expression) {
+        try {
+            Object result = evaluate(expression);
+            System.out.println(stringify(result));
+        } catch(RuntimeError error) {
+            Lox.runtimeError(error);
+        }
+    }
+
+    private String stringify(Object obj) {
+        if(obj == null) return "nil";
+
+        if(obj instanceof Double d) {
+            String text = d.toString();
+            if(text.endsWith(".0")) text = text.substring(0, text.length()-2);
+            return text;
+
+        }
+
+        return obj.toString();
+    }
     // all of the RPN logic still needs to be implemented
     @Override
     public Object visitLiteralExprRPN(Expr.Literal expr) {
@@ -166,5 +195,18 @@ class Interpretor implements Expr.Visitor<Object> {
     @Override 
     public Object visitGroupingExprRPN(Expr.Grouping expr) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
     }
 }

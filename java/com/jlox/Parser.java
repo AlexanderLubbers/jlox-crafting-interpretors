@@ -16,6 +16,7 @@ import static com.jlox.TokenType.MINUS;
 import static com.jlox.TokenType.NIL;
 import static com.jlox.TokenType.NUMBER;
 import static com.jlox.TokenType.PLUS;
+import static com.jlox.TokenType.PRINT;
 import static com.jlox.TokenType.Q;
 import static com.jlox.TokenType.RIGHT_PAREN;
 import static com.jlox.TokenType.SEMICOLON;
@@ -23,6 +24,7 @@ import static com.jlox.TokenType.SLASH;
 import static com.jlox.TokenType.STAR;
 import static com.jlox.TokenType.STRING;
 import static com.jlox.TokenType.TRUE;
+import java.util.ArrayList;
 import java.util.List;
 
 class Parser {
@@ -208,11 +210,36 @@ class Parser {
 
         throw error(peek(), "Expect expression.");
     }
-    Expr parse() {
-        try {
-            return expression();
-        } catch(ParseError error) {
-            return null;
+    // Expr parse() {
+    //     try {
+    //         return expression();
+    //     } catch(ParseError error) {
+    //         return null;
+    //     }
+    // }
+
+    List<Stmt> parse() {
+        List<Stmt> statements = new ArrayList<>();
+        while(!isAtEnd()) {
+            statements.add(statement());
         }
+        return statements;
+    }
+    private Stmt statement() {
+        if(match(PRINT)) return printStatement();
+
+        return expressionStatement();
+    }
+
+    private Stmt printStatement() {
+        Expr value = expression();
+        consume(SEMICOLON, "expect ':' after value. ");
+        return new Stmt.Print(value);
+    }
+
+    private Stmt expressionStatement() {
+        Expr value = expression();
+        consume(SEMICOLON, "expect ';' after value.");
+        return new Stmt.Expression(value);
     }
 } 

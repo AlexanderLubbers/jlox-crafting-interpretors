@@ -8,5 +8,5 @@ This is the jlox interpreter from the book Crafting Interpreters. The actual ide
 
 # things I added to the interpretor
 * C-style block comments
-* reverse polish notation
 * comma expressions
+* ternary expressions
