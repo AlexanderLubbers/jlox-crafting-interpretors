@@ -233,7 +233,7 @@ class Parser {
 
     private Stmt printStatement() {
         Expr value = expression();
-        consume(SEMICOLON, "expect ':' after value. ");
+        consume(SEMICOLON, "expect ';' after value. ");
         return new Stmt.Print(value);
     }
 

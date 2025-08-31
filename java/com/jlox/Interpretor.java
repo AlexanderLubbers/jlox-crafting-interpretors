@@ -1,6 +1,7 @@
 package com.jlox;
 
 import static com.jlox.TokenType.*;
+import java.util.List;
 
 class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     
@@ -150,13 +151,25 @@ class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
         return branch;
     }
-    public void interpret(Expr expression) {
+    // public void interpret(Expr expression) {
+    //     try {
+    //         Object result = evaluate(expression);
+    //         System.out.println(stringify(result));
+    //     } catch(RuntimeError error) {
+    //         Lox.runtimeError(error);
+    //     }
+    // }
+    public void interpret(List<Stmt> statements) {
         try {
-            Object result = evaluate(expression);
-            System.out.println(stringify(result));
-        } catch(RuntimeError error) {
+            for(int i = 0; i < statements.size(); i++) {
+                execute(statements.get(i));
+            }
+        } catch (RuntimeError error) {
             Lox.runtimeError(error);
         }
+    }
+    private void execute(Stmt statement) {
+        statement.accept(this);
     }
 
     private String stringify(Object obj) {
