@@ -1,5 +1,7 @@
 package com.jlox;
 
+//import com.jlox.Expr.Variable;
+//import com.jlox.Stmt.Var;
 import static com.jlox.TokenType.*;
 import java.util.List;
 
@@ -151,14 +153,6 @@ class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         }
         return branch;
     }
-    // public void interpret(Expr expression) {
-    //     try {
-    //         Object result = evaluate(expression);
-    //         System.out.println(stringify(result));
-    //     } catch(RuntimeError error) {
-    //         Lox.runtimeError(error);
-    //     }
-    // }
     public void interpret(List<Stmt> statements) {
         try {
             for(int i = 0; i < statements.size(); i++) {
@@ -221,5 +215,26 @@ class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         Object value = evaluate(stmt.expression);
         System.out.println(stringify(value));
         return null;
+    }
+
+
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitVarStmt'");
+    }
+
+
+    @Override
+    public Object visitVariableExpr(Expr.Variable expr) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitVariableExpr'");
+    }
+
+
+    @Override
+    public Object visitVariableExprRPN(Expr.Variable expr) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitVariableExprRPN'");
     }
 }

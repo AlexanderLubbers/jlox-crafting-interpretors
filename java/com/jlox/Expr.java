@@ -5,19 +5,21 @@ abstract class Expr{
     abstract <R> R accept(Visitor<R> visitor);
     //create an accept function for reverse polish notation
     abstract <R> R acceptRPN(Visitor<R> visitor);
-        interface Visitor<R> {
-            R visitBinaryExpr(Binary expr);
-            R visitGroupingExpr(Grouping expr);
-            R visitLiteralExpr(Literal expr);
-            R visitUnaryExpr(Unary expr);
-            R visitTernaryExpr(Ternary expr);
-            //add visitor classes to turn the expresions into reverse polish notation format
-            R visitBinaryExprRPN(Binary expr);
-            R visitGroupingExprRPN(Grouping expr);
-            R visitLiteralExprRPN(Literal expr);
-            R visitUnaryExprRPN(Unary expr);
-            R visitTernaryExprRPN(Ternary expr);
-        }
+    interface Visitor<R> {
+        R visitBinaryExpr(Binary expr);
+        R visitGroupingExpr(Grouping expr);
+        R visitLiteralExpr(Literal expr);
+        R visitUnaryExpr(Unary expr);
+        R visitTernaryExpr(Ternary expr);
+        R visitVariableExpr(Variable expr);
+        //add visitor classes to turn the expresions into reverse polish notation format
+        R visitBinaryExprRPN(Binary expr);
+        R visitGroupingExprRPN(Grouping expr);
+        R visitLiteralExprRPN(Literal expr);
+        R visitUnaryExprRPN(Unary expr);
+        R visitTernaryExprRPN(Ternary expr);
+        R visitVariableExprRPN(Variable expr);
+    }
 
     static class Ternary extends Expr {
         public Ternary(Token operator, Token otherOperator, Expr condition, Expr branch, Expr otherBranch) {
@@ -111,5 +113,20 @@ abstract class Expr{
         }
         final Token operator;
         final Expr right;
+    }
+    static class Variable extends Expr {
+        Variable(Token name) {
+            this.name = name;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitVariableExpr(this);
+        }
+        @Override
+        <R> R acceptRPN(Visitor<R> visitor) {
+            return visitor.visitVariableExprRPN(this);
+        }
+        final Token name;
     }
 }

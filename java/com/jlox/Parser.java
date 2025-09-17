@@ -5,10 +5,12 @@ import static com.jlox.TokenType.BANG_EQUAL;
 import static com.jlox.TokenType.COLON;
 import static com.jlox.TokenType.COMMA;
 import static com.jlox.TokenType.EOF;
+import static com.jlox.TokenType.EQUAL;
 import static com.jlox.TokenType.EQUAL_EQUAL;
 import static com.jlox.TokenType.FALSE;
 import static com.jlox.TokenType.GREATER;
 import static com.jlox.TokenType.GREATER_EQUAL;
+import static com.jlox.TokenType.IDENTIFIER;
 import static com.jlox.TokenType.LEFT_PAREN;
 import static com.jlox.TokenType.LESS;
 import static com.jlox.TokenType.LESS_EQUAL;
@@ -24,6 +26,7 @@ import static com.jlox.TokenType.SLASH;
 import static com.jlox.TokenType.STAR;
 import static com.jlox.TokenType.STRING;
 import static com.jlox.TokenType.TRUE;
+import static com.jlox.TokenType.VAR;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -199,6 +202,7 @@ class Parser {
         if(match(FALSE)) return new Expr.Literal(false);
         if(match(TRUE)) return new Expr.Literal(true);
         if(match(NIL)) return new Expr.Literal(null);
+        if(match(IDENTIFIER)) return new Expr.Variable(previous());
         if(match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
         }
@@ -210,20 +214,33 @@ class Parser {
 
         throw error(peek(), "Expect expression.");
     }
-    // Expr parse() {
-    //     try {
-    //         return expression();
-    //     } catch(ParseError error) {
-    //         return null;
-    //     }
-    // }
 
     List<Stmt> parse() {
         List<Stmt> statements = new ArrayList<>();
         while(!isAtEnd()) {
-            statements.add(statement());
+            statements.add(declaration());
         }
         return statements;
+    }
+    private Stmt declaration() {
+        try {
+            if(match(VAR)) return varDeclaration();
+
+            return statement();
+        } catch (RuntimeError e) {
+            synchronize();
+            return null;
+        }
+    }
+    private Stmt varDeclaration() {
+        Token name = consume(IDENTIFIER, "Expected variable name. ");
+
+        Expr initializer = null;
+        if(match(EQUAL)) {
+            initializer = expression();
+        }
+        consume(SEMICOLON, "Expected semicolon after variable declaraction");
+        return new Stmt.Var(name, initializer);
     }
     private Stmt statement() {
         if(match(PRINT)) return printStatement();

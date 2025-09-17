@@ -1,5 +1,7 @@
 package com.jlox;
 
+import com.jlox.Expr.Variable;
+
 class AstPrinter implements Expr.Visitor<String> {
     public static void main(String[] args)  {
         Expr expression = new Expr.Binary(
@@ -91,5 +93,16 @@ class AstPrinter implements Expr.Visitor<String> {
     @Override
     public String visitTernaryExprRPN(Expr.Ternary expr) {
         return parenthesizeRPN(expr.operator.lexeme+expr.otherOperator.lexeme, expr.condition, expr.branch, expr.otherBranch);
+    }
+
+    @Override
+    public String visitVariableExpr(Variable expr) {
+        return expr.name.lexeme;
+    }
+
+    @Override
+    public String visitVariableExprRPN(Variable expr) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'visitVariableExprRPN'");
     }
 }
