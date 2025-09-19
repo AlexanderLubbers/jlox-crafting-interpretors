@@ -54,4 +54,7 @@ returns:
 3
 ```
 
+# Personal notes for myself
+this programming language allows the redeclaration of the same global variable. In my own programming language I am definitely not gonna let that slide.
+
 

@@ -6,7 +6,8 @@ import static com.jlox.TokenType.*;
 import java.util.List;
 
 class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-    
+    private Environment environment = new Environment();
+
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
         return expr.value;
@@ -178,6 +179,38 @@ class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
         return obj.toString();
     }
+
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
+    }
+
+
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt) {
+        Object value = null;
+        if(stmt.value != null) {
+            value = evaluate(stmt.value);
+        }
+        environment.define(stmt.name.lexeme, value);
+        return null;
+    }
+
+
+    @Override
+    public Object visitVariableExpr(Expr.Variable expr) {
+        return environment.get(expr.name);
+    }
+
     // all of the RPN logic still needs to be implemented
     @Override
     public Object visitLiteralExprRPN(Expr.Literal expr) {
@@ -205,36 +238,10 @@ class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     }
 
     @Override
-    public Void visitExpressionStmt(Stmt.Expression stmt) {
-        evaluate(stmt.expression);
-        return null;
-    }
-
-    @Override
-    public Void visitPrintStmt(Stmt.Print stmt) {
-        Object value = evaluate(stmt.expression);
-        System.out.println(stringify(value));
-        return null;
-    }
-
-
-    @Override
-    public Void visitVarStmt(Stmt.Var stmt) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visitVarStmt'");
-    }
-
-
-    @Override
-    public Object visitVariableExpr(Expr.Variable expr) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'visitVariableExpr'");
-    }
-
-
-    @Override
     public Object visitVariableExprRPN(Expr.Variable expr) {
-        // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitVariableExprRPN'");
     }
+
+    
+
 }
