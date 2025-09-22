@@ -105,4 +105,14 @@ class AstPrinter implements Expr.Visitor<String> {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'visitVariableExprRPN'");
     }
+
+    @Override
+    public String visitAssignExpr(Expr.Assign expr) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String visitAssignExprRPN(Expr.Assign expr) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

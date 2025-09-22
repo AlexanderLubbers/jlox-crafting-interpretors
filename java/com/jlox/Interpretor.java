@@ -6,7 +6,7 @@ import static com.jlox.TokenType.*;
 import java.util.List;
 
 class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-    private Environment environment = new Environment();
+    private final Environment environment = new Environment();
 
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
@@ -211,6 +211,12 @@ class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         return environment.get(expr.name);
     }
 
+
+    @Override
+    public Object visitAssignExpr(Expr.Assign expr) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
     // all of the RPN logic still needs to be implemented
     @Override
     public Object visitLiteralExprRPN(Expr.Literal expr) {
@@ -242,6 +248,9 @@ class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
         throw new UnsupportedOperationException("Unimplemented method 'visitVariableExprRPN'");
     }
 
-    
+    @Override
+    public Object visitAssignExprRPN(Expr.Assign expr) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
 }

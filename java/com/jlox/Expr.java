@@ -12,6 +12,7 @@ abstract class Expr{
         R visitUnaryExpr(Unary expr);
         R visitTernaryExpr(Ternary expr);
         R visitVariableExpr(Variable expr);
+        R visitAssignExpr(Assign expr);
         //add visitor classes to turn the expresions into reverse polish notation format
         R visitBinaryExprRPN(Binary expr);
         R visitGroupingExprRPN(Grouping expr);
@@ -19,8 +20,24 @@ abstract class Expr{
         R visitUnaryExprRPN(Unary expr);
         R visitTernaryExprRPN(Ternary expr);
         R visitVariableExprRPN(Variable expr);
+        R visitAssignExprRPN(Assign expr);
     }
+    static class Assign extends Expr {
+        public Assign(Token name, Expr value) {
+            this.name = name;
+            this.value = value;
+        }
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitAssignExpr(this);
+        }
 
+        @Override
+        <R> R acceptRPN(Visitor<R> visitor) {
+            return visitor.visitAssignExprRPN(this);
+        }
+        final Token name;
+        final Expr value;
+    }
     static class Ternary extends Expr {
         public Ternary(Token operator, Token otherOperator, Expr condition, Expr branch, Expr otherBranch) {
             this.condition = condition;
