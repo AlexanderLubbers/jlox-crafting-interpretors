@@ -6,7 +6,8 @@ import static com.jlox.TokenType.*;
 import java.util.List;
 
 class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
-    private final Environment environment = new Environment();
+    private final Environment global = new Environment();
+    private Environment environment = global;
 
     @Override
     public Object visitLiteralExpr(Expr.Literal expr) {
@@ -214,7 +215,26 @@ class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
     @Override
     public Object visitAssignExpr(Expr.Assign expr) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Object value = evaluate(expr);
+        environment.assign(expr.name, value);
+        return value;
+    }
+    @Override
+    public Void visitBlockStmt(Stmt.Block stmt) {
+        executeBlock(stmt.statements, new Environment(environment));
+        return null;
+    }
+    void executeBlock(List<Stmt> statements, Environment env) {
+        Environment outer = this.environment;
+        try {
+            this.environment = env;
+
+            for(Stmt statement : statements) {
+                execute(statement);
+            }
+        } finally {
+            this.environment = outer;
+        }
     }
 
     // all of the RPN logic still needs to be implemented
@@ -252,5 +272,7 @@ class Interpretor implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Object visitAssignExprRPN(Expr.Assign expr) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    
 
 }

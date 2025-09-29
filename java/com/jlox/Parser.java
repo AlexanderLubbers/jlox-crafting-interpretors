@@ -3,7 +3,6 @@ package com.jlox;
 import static com.jlox.TokenType.BANG;
 import static com.jlox.TokenType.BANG_EQUAL;
 import static com.jlox.TokenType.COLON;
-import static com.jlox.TokenType.COMMA;
 import static com.jlox.TokenType.EOF;
 import static com.jlox.TokenType.EQUAL;
 import static com.jlox.TokenType.EQUAL_EQUAL;
@@ -11,6 +10,7 @@ import static com.jlox.TokenType.FALSE;
 import static com.jlox.TokenType.GREATER;
 import static com.jlox.TokenType.GREATER_EQUAL;
 import static com.jlox.TokenType.IDENTIFIER;
+import static com.jlox.TokenType.LEFT_BRACE;
 import static com.jlox.TokenType.LEFT_PAREN;
 import static com.jlox.TokenType.LESS;
 import static com.jlox.TokenType.LESS_EQUAL;
@@ -20,6 +20,7 @@ import static com.jlox.TokenType.NUMBER;
 import static com.jlox.TokenType.PLUS;
 import static com.jlox.TokenType.PRINT;
 import static com.jlox.TokenType.Q;
+import static com.jlox.TokenType.RIGHT_BRACE;
 import static com.jlox.TokenType.RIGHT_PAREN;
 import static com.jlox.TokenType.SEMICOLON;
 import static com.jlox.TokenType.SLASH;
@@ -92,19 +93,34 @@ class Parser {
         return peek().type == type;
     }
     private Expr expression() {
-        //the rule for an expression expands to equality so the rule of that should be looked at
-        return commaExpr();
+        return assignment();
     }
-    //make sure this actually works
-    private Expr commaExpr() {
+    private Expr assignment() {
         Expr expr = equality();
-        while(match(COMMA)) {
-            Token operator = previous();
-            Expr right = equality();
-            expr = new Expr.Binary(expr, operator, right);
+        if(match(EQUAL)) {
+            Token equals = previous();
+            //the recursion here is important because you want to allow chain assignments
+            Expr value = assignment();
+
+            //checks to make sure that the left side is a variable and not anything else
+            if(expr instanceof Expr.Variable) {
+                Token name = ((Expr.Variable)expr).name;
+                return new Expr.Assign(name, value);
+            }
+            error(equals, "Invalid assignment target");
         }
         return expr;
     }
+    // //make sure this actually works
+    // private Expr commaExpr() {
+    //     Expr expr = equality();
+    //     while(match(COMMA)) {
+    //         Token operator = previous();
+    //         Expr right = equality();
+    //         expr = new Expr.Binary(expr, operator, right);
+    //     }
+    //     return expr;
+    // }
     // equality -> comparison ( ( "!=" | "==" ) comparison )* ;
     //this method matches an equality operator or anything of higher precedence
     private Expr equality() {
@@ -244,8 +260,18 @@ class Parser {
     }
     private Stmt statement() {
         if(match(PRINT)) return printStatement();
+        if(match(LEFT_BRACE)) return new Stmt.Block(block());
 
         return expressionStatement();
+    }
+    private List<Stmt> block() {
+        List<Stmt> statements = new ArrayList<>();
+        while(!check(RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+        consume(RIGHT_BRACE, "Expect '}' after block.");
+
+        return statements;
     }
 
     private Stmt printStatement() {
